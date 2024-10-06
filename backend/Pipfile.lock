@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6b89d1d41feeaa79f9112c8b16207d0111a5af4b481fb5f53129ad2f791063e4"
+            "sha256": "2d73b264f919fe881790915b59432398ad14c7d6e71de7c256d68f42ed790de3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -224,7 +224,7 @@
             "version": "==0.12.1"
         },
         "dlib": {
-            "file": "Face\\dlib-19.24.6-cp310-cp310-win_amd64.whl",
+            "file": "Face\\dlib_files\\dlib-19.24.6-cp310-cp310-win_amd64.whl",
             "hashes": [
                 "sha256:77e3c28ac2c66141514b07cbb74b7c7f80381c019ce5fec99007980bc6490d7d"
             ]
