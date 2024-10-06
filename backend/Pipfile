@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 flask = "*"
+requests = "*"
+opencv-python = "*"
+matplotlib = "*"
+dlib = {file = "Face\\dlib-19.24.6-cp310-cp310-win_amd64.whl"}
 
 [dev-packages]
 
