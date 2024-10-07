@@ -43,7 +43,7 @@ def detect_face_landmarks(image, gray_image):
 # 主函数入口
 if __name__ == "__main__":
     # 加载图像
-    image = cv2.imread('image.jpg')
+    image = cv2.imread('test.jpg')
 
     # 检查图像是否成功加载
     if image is None:
