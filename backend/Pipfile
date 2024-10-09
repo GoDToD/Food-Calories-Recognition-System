@@ -9,6 +9,7 @@ requests = "*"
 opencv-python = "*"
 matplotlib = "*"
 dlib = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 
