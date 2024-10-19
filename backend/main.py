@@ -24,9 +24,12 @@ def get_model_details():
 
 @app.route('/api/upload_image', methods=['POST'])
 def post_upload_image():
-    file = request.files['file']
-    file.save(f'./uploaded_images/{file.filename}')
-    food_name, calories = recognize_image(f'./uploaded_images/{file.filename}')
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image uploaded'}), 400
+    file = request.files['image']
+    food_name, calories = recognize_image(file)
+    food_name = "ee"
+    calories = "ee"
     return jsonify({"message": "Upload Image", "food_name": food_name, "calorise": calories})
 
 if __name__ == '__main__':
