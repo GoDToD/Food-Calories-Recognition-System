@@ -2,22 +2,22 @@ import onnx
 import onnxruntime as ort
 from services.food_calories_data import food_calories
 import numpy as np
+import torch
 import cv2
 
 ALLOWERD_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 ORT_SESSION = ort.InferenceSession('model/best.onnx')
 
 def preprocess_image(image, input_size=(320, 320)):
-    # Resize image
-    resized = cv2.resize(image, input_size)
-    # Normalize image to [0, 1]
-    #normalized = resized / 255.0
-    # Transpose the image to [channels, height, width]
-    #transposed = np.transpose(normalized, (2, 0, 1))
-    transposed = np.transpose(resized, (2, 0, 1))
-    # Add batch dimension [batch_size, channels, height, width]
-    batch = np.expand_dims(transposed, axis=0).astype(np.float32)
-    return batch
+    # Resize to 320x320
+    image = cv2.resize(image, input_size)
+    # Normalize pixel values (0-1)
+    image = image.astype(np.float32) / 255.0
+    # Convert to CHW format (channels, height, width)
+    image = np.transpose(image, (2, 0, 1))
+    # Add batch dimension (batch_size, channels, height, width)
+    image = np.expand_dims(image, axis=0)
+    return image
 
 # Inference function
 def run_inference(image):
@@ -28,35 +28,25 @@ def run_inference(image):
     input_name = ORT_SESSION.get_inputs()[0].name
     outputs = ORT_SESSION.run(None, {input_name: input_tensor})
     
-    return outputs
+    return outputs  
 
-def postprocess_output(output, img_shape, confidence_threshold=0.5):
-    # Assuming output is a list of predictions for a single image
-    # and img_shape is the original shape of the image.
-    predictions = []
+def post_process(outputs, conf_thres=0.5):
+    # YOLOv8 typically outputs [batch_size, num_boxes, num_attributes]
+    # where num_attributes includes (x, y, w, h, obj_conf, class_scores)
+    predictions = outputs[0]
+    print("PREDICTIONS:", predictions)
+    # Apply sigmoid to object confidence and class scores
+    predictions[..., 4:] = torch.sigmoid(torch.tensor(predictions[..., 4:]))
     
-    for pred in output[0]:  # Assuming batch size is 1
-        x, y, w, h, conf = pred[:5]
-        class_scores = pred[5:]
-        
-        if conf < confidence_threshold:
-            continue
-        
-        class_id = np.argmax(class_scores)
-        confidence = conf
-        # Convert normalized coords back to the original image shape
-        x = int(x * img_shape[1])
-        y = int(y * img_shape[0])
-        w = int(w * img_shape[1])
-        h = int(h * img_shape[0])
-        
-        predictions.append({
-            "bounding_box": [x, y, w, h],
-            "confidence": float(confidence),
-            "class": int(class_id)  # You can map class_id to actual class names
-        })
+    # Filter out predictions with low object confidence
+    conf_mask = predictions[..., 4] > conf_thres
+    predictions = predictions[conf_mask]
     
-    return predictions
+    # Get the class with the highest score (argmax along class axis)
+    class_ids = torch.argmax(predictions[..., 5:], dim=-1).numpy()
+    confidences = predictions[..., 4].numpy()  # Object confidence scores
+    print("CSERERERER:",class_ids, confidences)
+    return class_ids, confidences
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWERD_EXTENSIONS
@@ -66,9 +56,8 @@ def recognize_image(file):
     img = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
 
     raw_output = run_inference(img)
-    print(raw_output)
 
-    predictions = postprocess_output(raw_output, img.shape)
+    predictions = post_process(raw_output, img.shape)
 
     print(predictions)
     food_name = 'food_name'
@@ -76,5 +65,21 @@ def recognize_image(file):
     return food_name, calories
 
 def model_details():
-    # print(MODEL)
+    model = onnx.load('model/best.onnx')
+    graph = model.graph
+    # Inspect the inputs
+    print("Model inputs:")
+    for input in graph.input:
+        print(f"Name: {input.name}")
+        print(f"Type: {input.type.tensor_type}")
+        dims = [dim.dim_value for dim in input.type.tensor_type.shape.dim]
+        print(f"Shape: {dims}")
+
+    # Inspect the outputs
+    print("\nModel outputs:")
+    for output in graph.output:
+        print(f"Name: {output.name}")
+        print(f"Type: {output.type.tensor_type}")
+        dims = [dim.dim_value for dim in output.type.tensor_type.shape.dim]
+        print(f"Shape: {dims}")
     return ""
