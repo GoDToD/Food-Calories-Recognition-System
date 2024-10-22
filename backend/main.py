@@ -22,7 +22,7 @@ def get_model_details():
     model_details()
     return jsonify({"message": "Model Details"})
 
-@app.route('/api/upload', methods=['POST'])
+@app.route('/api/upload_image', methods=['POST'])
 def post_upload_image():
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
