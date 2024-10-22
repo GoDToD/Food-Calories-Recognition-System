@@ -1,13 +1,13 @@
-// src/components/FoodRecognitionPage.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // 引入 Axios
-import './FoodRecognitionPage.css'; // 引入CSS文件
+import axios from 'axios'; 
+import './FoodRecognitionPage.css'; 
 
 const FoodRecognitionPage = () => {
   const [preview, setPreview] = useState('https://www.researchgate.net/publication/339245946/figure/fig3/AS:858286853206017@1581642940296/The-automatic-three-steps-system-of-food-recognition-and-nutrition-analysis-system.ppm');
-  const [errorMessage, setErrorMessage] = useState(''); // 新增状态管理错误信息
-  const navigate = useNavigate(); // 使用useNavigate
+  const [errorMessage, setErrorMessage] = useState(''); 
+  const navigate = useNavigate(); 
 
   const displayImage = async (event) => {
     const file = event.target.files[0];
@@ -20,7 +20,6 @@ const FoodRecognitionPage = () => {
     if (file) {
       reader.readAsDataURL(file);
 
-      // 发送图片到后端
       const formData = new FormData();
       formData.append('file', file);
 
@@ -33,23 +32,21 @@ const FoodRecognitionPage = () => {
 
         if (response.status === 200) {
           const data = response.data;
-
-          // 跳转到结果页面，并传递识别结果
           navigate('/results', {
             state: { foodType: data.foodType, calories: data.calories, nutritionInfo: data.nutritionInfo },
           });
         } else {
-          setErrorMessage('Error uploading file: ' + response.statusText); // 设置错误消息
+          setErrorMessage('Error uploading file: ' + response.statusText); 
         }
       } catch (error) {
-        setErrorMessage('Error: ' + error.message); // 设置错误消息
+        setErrorMessage('Error: ' + error.message); 
       }
     }
   };
 
   const resetUpload = () => {
     setPreview('https://www.researchgate.net/publication/339245946/figure/fig3/AS:858286853206017@1581642940296/The-automatic-three-steps-system-of-food-recognition-and-nutrition-analysis-system.ppm');
-    setErrorMessage(''); // 清空错误消息
+    setErrorMessage(''); 
   };
 
   return (
