@@ -20,7 +20,8 @@ const FoodRecognitionPage = () => {
       reader.readAsDataURL(file);
 
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('image', file); 
+
 
       try {
         const response = await axios.post('http://127.0.0.1:7766/api/upload_image', formData, {
