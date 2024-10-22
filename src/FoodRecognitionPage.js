@@ -20,7 +20,7 @@ const FoodRecognitionPage = () => {
       reader.readAsDataURL(file);
 
       const formData = new FormData();
-      formData.append('image', file); 
+formData.append('image', file);
 
 
       try {
