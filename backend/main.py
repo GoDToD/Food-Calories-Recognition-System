@@ -22,7 +22,7 @@ def get_model_details():
     model_details()
     return jsonify({"message": "Model Details"})
 
-@app.route('/api/upload_image', methods=['POST'])
+@app.route('/api/upload', methods=['POST'])
 def post_upload_image():
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
@@ -31,4 +31,4 @@ def post_upload_image():
     return jsonify({"message": "Recognised", "food_name": food_name, "calories": calories})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=7766)
+    app.run(debug=True)
