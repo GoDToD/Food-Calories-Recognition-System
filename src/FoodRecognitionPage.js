@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; 
@@ -14,17 +13,18 @@ const FoodRecognitionPage = () => {
     const reader = new FileReader();
 
     reader.onload = () => {
-      setPreview(reader.result);
+      setPreview(reader.result); 
     };
 
     if (file) {
       reader.readAsDataURL(file);
 
+      // 发送图片到后端
       const formData = new FormData();
       formData.append('file', file);
 
       try {
-        const response = await axios.post('http://localhost:5000/upload', formData, {
+        const response = await axios.post('http://127.0.0.1:7766/api/upload_image', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -32,19 +32,20 @@ const FoodRecognitionPage = () => {
 
         if (response.status === 200) {
           const data = response.data;
+
           navigate('/results', {
-            state: { foodType: data.foodType, calories: data.calories, nutritionInfo: data.nutritionInfo },
+            state: { foodType: data.food_name, calories: data.calories, previewImage: reader.result },
           });
         } else {
-          setErrorMessage('Error uploading file: ' + response.statusText); 
+          setErrorMessage('Image upload failed!! Please upload and identify again'); 
         }
       } catch (error) {
-        setErrorMessage('Error: ' + error.message); 
+        setErrorMessage('Image upload failed!! Please upload and identify again'); 
       }
     }
   };
 
-  const resetUpload = () => {
+  const retryUpload = () => {
     setPreview('https://www.researchgate.net/publication/339245946/figure/fig3/AS:858286853206017@1581642940296/The-automatic-three-steps-system-of-food-recognition-and-nutrition-analysis-system.ppm');
     setErrorMessage(''); 
   };
@@ -66,7 +67,7 @@ const FoodRecognitionPage = () => {
       {errorMessage && (
         <div className="error-message">
           <p>{errorMessage}</p>
-          <button onClick={resetUpload}>Re-upload</button>
+          <button onClick={retryUpload}>Retry</button>
         </div>
       )}
     </div>
