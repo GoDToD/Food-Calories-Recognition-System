@@ -19,9 +19,9 @@ const FoodRecognitionPage = () => {
     if (file) {
       reader.readAsDataURL(file);
 
-      // 发送图片到后端
       const formData = new FormData();
-      formData.append('file', file);
+formData.append('image', file);
+
 
       try {
         const response = await axios.post('http://127.0.0.1:7766/api/upload_image', formData, {
@@ -48,6 +48,10 @@ const FoodRecognitionPage = () => {
   const retryUpload = () => {
     setPreview('https://www.researchgate.net/publication/339245946/figure/fig3/AS:858286853206017@1581642940296/The-automatic-three-steps-system-of-food-recognition-and-nutrition-analysis-system.ppm');
     setErrorMessage(''); 
+
+  
+    const fileInput = document.getElementById('file-input');
+    fileInput.value = ''; 
   };
 
   return (
@@ -75,3 +79,4 @@ const FoodRecognitionPage = () => {
 };
 
 export default FoodRecognitionPage;
+

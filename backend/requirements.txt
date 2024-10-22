@@ -1,0 +1,11 @@
+Flask
+requests
+opencv-python
+matplotlib
+flask-sqlalchemy
+torch
+torchaudio
+torchvision
+onnx
+onnxruntime
+
