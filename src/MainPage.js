@@ -1,7 +1,6 @@
-// src/components/MainPage.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './MainPage.css'; // 引入CSS文件
+import './MainPage.css'; 
 
 const MainPage = () => {
   return (
