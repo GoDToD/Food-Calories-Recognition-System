@@ -12,6 +12,7 @@ flask-sqlalchemy = "*"
 torch = "*"
 torchaudio = "*"
 torchvision = "*"
+flask-cors = "*"
 
 [dev-packages]
 

@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from services.utils import allowed_file, recognize_image, model_details
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+CORS(app)
 app.config['upload_folder'] = './uploaded_images'
 
 @app.route('/', methods=['GET'])
@@ -31,4 +33,4 @@ def post_upload_image():
     return jsonify({"message": "Recognised", "food_name": food_name, "calories": calories})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=7766)
+    app.run(debug=True,port=7766)
