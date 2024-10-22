@@ -31,4 +31,4 @@ def post_upload_image():
     return jsonify({"message": "Recognised", "food_name": food_name, "calorise": calories})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=7766)
