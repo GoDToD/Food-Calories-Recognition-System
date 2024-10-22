@@ -7,4 +7,5 @@ torch
 torchaudio
 torchvision
 onnx
+onnxruntime
 
