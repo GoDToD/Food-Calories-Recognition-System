@@ -28,7 +28,7 @@ def post_upload_image():
         return jsonify({'error': 'No image uploaded'}), 400
     file = request.files['image']
     food_name, calories = recognize_image(file)
-    return jsonify({"message": "Recognised", "food_name": food_name, "calorise": calories})
+    return jsonify({"message": "Recognised", "food_name": food_name, "calories": calories})
 
 if __name__ == '__main__':
     app.run(debug=True, port=7766)
