@@ -25,62 +25,78 @@ def preprocess_image(image_path, input_size=(320, 320)):
     
     return image_batch
 
-def save_output_to_txt(output_file, class_ids, scores, boxes):
-    with open(output_file, 'w') as f:
-        # Iterate over the detected objects and write to file
-        for i in range(len(class_ids)):
-            class_id = int(class_ids[i])
-            confidence = float(scores[i])
-            
-            # Bounding box coordinates
-            x_center, y_center, width, height = boxes[i]
-            
-            # Convert normalized values to the actual dimensions of the image
-            x_center = int(x_center * 320)
-            y_center = int(y_center * 320)
-            width = int(width * 320)
-            height = int(height * 320)
-
-            # Write to file in a structured format
-            f.write(f"Object {i + 1}:\n")
-            f.write(f"Class ID: {class_id}\n")
-            f.write(f"Confidence: {confidence:.4f}\n")
-            f.write(f"Bounding Box: [x_center: {x_center}, y_center: {y_center}, width: {width}, height: {height}]\n")
-            f.write("\n")  # Add a newline between each object's data
-
-def post_process(outputs):
+def post_process_image(outputs):
     
     # YOLOv8 typically outputs [batch_size, num_boxes, num_attributes]
     # where num_attributes includes (x, y, w, h, obj_conf, class_scores)
     predictions = outputs[0]
+    print("prediction:",predictions.shape)
+    print(predictions[0][0][4:])
     
     # Apply sigmoid to object confidence and class scores
-    predictions[..., 4:] = 1 / (1 + np.exp(-predictions[..., 4:]))
+    predictions[...,4:] = 1 / (1 + np.exp(-predictions[...,4:]))
+    print("prediction:",predictions.shape)
+    print(predictions[0][0][4:])
     
     # Filter out predictions with low object confidence
-    conf_mask = predictions[..., 4] > 0.5
-    predictions = predictions[conf_mask]
+    confidence_mask = predictions[...,4] > 0.5
+    predictions = predictions[confidence_mask]
+    print("prediction:",predictions.shape)
     
     # Get the class with the highest score (argmax along class axis)
-    class_ids = np.argmax(predictions[..., 5:], axis=-1)
-    confidences = predictions[..., 4]
-    boxes = predictions[..., :4]
+    class_ids = np.argmax(predictions[...,5:], axis=-1)
+    print(predictions)
+    confidences = predictions[...,4]
+    boxes = predictions[..., :4 ]
     
     return class_ids, confidences, boxes
 
+def post_process(outputs):
+
+    predictions = outputs[0]
+    print("prediction:",predictions.shape)
+    predictions = predictions[0]
+    predictions = np.transpose(predictions)
+    print("prediction:",predictions)
+    print("prediction:",predictions.shape)
+    print(predictions[210])
+
+    (i,j) = predictions.shape
+
+    new_predictions = np.zeros((i, 6))
+
+    for a in range(i):
+        max_confidence = np.max(predictions[a][5:])
+        max_index = np.argmax(predictions[a][5:])
+        new_predictions[a] = np.concatenate((predictions[a][0:4], [max_confidence], [max_index]))
+
+    print("new_predictions:",new_predictions)
+
+    best_prediction = new_predictions[np.argmax(new_predictions[:,4])]
+
+    print("best_prediction:",best_prediction)
+
+    best_class = best_prediction[5]
+    best_confidence = best_prediction[4]
+
+    return int(best_class), best_confidence
+
+
 # Preprocess your image
-image_path = "image.jpg"
+image_path = "waffles_3855881.jpg"
 input_tensor = preprocess_image(image_path)
 
 # Run inference
 outputs = session.run(None, {"images": input_tensor})
 
 print(outputs)
+print("test:")
+post_process(outputs)
+print("real:")
+class_id, confidence = post_process(outputs)
+print("class_ids:",class_id)
+class_name = food_labels[class_id]
+calories = food_calories[class_name]
 
-class_ids, confidences, boxes = post_process(outputs)
-id_not_zero = [class_id for class_id in class_ids if class_id != 0]
-class_names = [food_labels[class_id] for class_id in id_not_zero]
-calories = [food_calories[class_name] for class_name in class_names]
-
-print(class_names)
+print(class_name)
 print(calories)

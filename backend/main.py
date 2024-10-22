@@ -28,8 +28,6 @@ def post_upload_image():
         return jsonify({'error': 'No image uploaded'}), 400
     file = request.files['image']
     food_name, calories = recognize_image(file)
-    food_name = "ee"
-    calories = "ee"
     return jsonify({"message": "Upload Image", "food_name": food_name, "calorise": calories})
 
 if __name__ == '__main__':

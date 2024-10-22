@@ -1,6 +1,6 @@
 import onnx
 import onnxruntime as ort
-from services.food_calories_data import food_calories
+from services.food_calories_data import food_calories, food_labels
 import numpy as np
 import torch
 import cv2
@@ -31,22 +31,33 @@ def run_inference(image):
     return outputs  
 
 def post_process(outputs, conf_thres=0.5):
-    # YOLOv8 typically outputs [batch_size, num_boxes, num_attributes]
-    # where num_attributes includes (x, y, w, h, obj_conf, class_scores)
     predictions = outputs[0]
-    print("PREDICTIONS:", predictions)
-    # Apply sigmoid to object confidence and class scores
-    predictions[..., 4:] = torch.sigmoid(torch.tensor(predictions[..., 4:]))
-    
-    # Filter out predictions with low object confidence
-    conf_mask = predictions[..., 4] > conf_thres
-    predictions = predictions[conf_mask]
-    
-    # Get the class with the highest score (argmax along class axis)
-    class_ids = torch.argmax(predictions[..., 5:], dim=-1).numpy()
-    confidences = predictions[..., 4].numpy()  # Object confidence scores
-    print("CSERERERER:",class_ids, confidences)
-    return class_ids, confidences
+    print("prediction:",predictions.shape)
+    predictions = predictions[0]
+    predictions = np.transpose(predictions)
+    print("prediction:",predictions)
+    print("prediction:",predictions.shape)
+    print(predictions[210])
+
+    (i,j) = predictions.shape
+
+    new_predictions = np.zeros((i, 6))
+
+    for a in range(i):
+        max_confidence = np.max(predictions[a][5:])
+        max_index = np.argmax(predictions[a][5:])
+        new_predictions[a] = np.concatenate((predictions[a][0:4], [max_confidence], [max_index]))
+
+    print("new_predictions:",new_predictions)
+
+    best_prediction = new_predictions[np.argmax(new_predictions[:,4])]
+
+    print("best_prediction:",best_prediction)
+
+    best_class = best_prediction[5]
+    best_confidence = best_prediction[4]
+
+    return int(best_class), best_confidence
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWERD_EXTENSIONS
@@ -57,11 +68,10 @@ def recognize_image(file):
 
     raw_output = run_inference(img)
 
-    predictions = post_process(raw_output, img.shape)
+    class_id, best_confidence = post_process(raw_output)
 
-    print(predictions)
-    food_name = 'food_name'
-    calories = '100kcal per 100g'
+    food_name = food_labels[class_id]
+    calories = food_calories[food_name]
     return food_name, calories
 
 def model_details():
