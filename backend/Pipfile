@@ -13,6 +13,7 @@ torch = "*"
 torchaudio = "*"
 torchvision = "*"
 flask-cors = "*"
+ultralytics = "*"
 
 [dev-packages]
 

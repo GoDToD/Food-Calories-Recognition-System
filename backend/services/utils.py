@@ -1,5 +1,6 @@
 import onnx
 import onnxruntime as ort
+from ultralytics import YOLO
 from services.food_calories_data import food_calories, food_labels
 import numpy as np
 import torch
@@ -7,6 +8,7 @@ import cv2
 
 ALLOWERD_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 ORT_SESSION = ort.InferenceSession('model/best.onnx')
+YOLO_ONNX = YOLO(r"model\best.onnx", task="detect")
 
 def preprocess_image(image, input_size=(320, 320)):
     # Resize to 320x320
@@ -66,13 +68,30 @@ def recognize_image(file):
     np_img = np.fromfile(file, np.uint8)
     img = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
 
-    raw_output = run_inference(img)
+    # raw_output = run_inference(img)
 
-    class_id, best_confidence = post_process(raw_output)
+    # class_id, best_confidence = post_process(raw_output)
 
-    food_name = food_labels[class_id]
-    calories = food_calories[food_name]
-    return food_name, calories
+    # food_name = food_labels[class_id]
+    # calories = food_calories[food_name]
+    results = YOLO_ONNX.predict(img, imgsz=(320, 320))
+    result_names = []
+    result_calories = []
+    for result in results:
+        # Extract the class IDs and map them to names
+        class_ids = result.boxes.cls.cpu().numpy().astype(int)  # Extract the class IDs
+        class_names = [result.names[class_id] for class_id in class_ids]  # Map class IDs to names
+
+        # Print the detected class names
+        for class_name in class_names:
+            
+            calories = food_calories[class_name]
+            result_names.append(class_name)
+            result_calories.append(calories)
+            print("Detected classes:", class_name)
+            print("Detected calories", calories)
+    
+    return result_names[0], result_calories[0]
 
 def model_details():
     model = onnx.load('model/best.onnx')
