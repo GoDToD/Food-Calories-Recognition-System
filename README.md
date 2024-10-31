@@ -1,7 +1,3 @@
-Here’s a structured README file based on your provided overview of the Food Calories Recognition System. You can adjust it further as needed:
-
----
-
 # Food Calories Recognition System
 
 ## Overview
@@ -78,6 +74,3 @@ On the upload page, you can upload your image by clicking the **“Click Here to
 
 Once the detection is complete, you will be redirected to the results page, where the names of the detected foods and their related calorie information will be displayed.
 
----
-
-Feel free to include any screenshots or images to illustrate the steps further. Let me know if you need any additional modifications or information!
