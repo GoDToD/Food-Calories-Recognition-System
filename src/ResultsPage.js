@@ -16,7 +16,7 @@ const ResultsPage = () => {
       <h2>Food Recognition Results</h2>
       <img src={previewImage} alt="Uploaded Food" className="result-image" />
       <h3>Food Item: {foodType}</h3>
-      <p>Estimated Calories: {calories} kcal</p>
+      <p>Estimated Calories: {calories} kcal/100g</p>
 
       <div className="button-container">
         <button className="retry-button" onClick={handleRetry}>
