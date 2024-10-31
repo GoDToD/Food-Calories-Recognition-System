@@ -68,15 +68,8 @@ def recognize_image(file):
     np_img = np.fromfile(file, np.uint8)
     img = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
 
-    # raw_output = run_inference(img)
-
-    # class_id, best_confidence = post_process(raw_output)
-
-    # food_name = food_labels[class_id]
-    # calories = food_calories[food_name]
     results = YOLO_ONNX.predict(img, imgsz=(320, 320))
-    result_names = []
-    result_calories = []
+    result_data = []
     for result in results:
         # Extract the class IDs and map them to names
         class_ids = result.boxes.cls.cpu().numpy().astype(int)  # Extract the class IDs
@@ -84,15 +77,15 @@ def recognize_image(file):
 
         # Print the detected class names
         for class_name in class_names:
-            
+            rowdata = {}
             calories = food_calories[class_name]
-            result_names.append(class_name)
-            result_calories.append(calories)
+            rowdata['food_name'] = class_name
+            rowdata['calories'] = calories
             print("Detected classes:", class_name)
             print("Detected calories", calories)
+            result_data.append(rowdata)
     
-    return result_names[0], result_calories[0]
-
+    return result_data
 def model_details():
     model = onnx.load('model/best.onnx')
     graph = model.graph

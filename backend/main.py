@@ -11,10 +11,6 @@ app.config['upload_folder'] = './uploaded_images'
 def home():
     return jsonify({"message": "API server is running"})
 
-@app.route('/api/hello', methods=['GET'])
-def hello_world():
-    return jsonify({"message": "Hello, World!"})
-
 @app.route('/api/upload_image', methods=['GET'])
 def get_upload_image():
     return jsonify({"message": "Upload Image"})
@@ -29,8 +25,8 @@ def post_upload_image():
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
     file = request.files['image']
-    food_name, calories = recognize_image(file)
-    return jsonify({"message": "Recognised", "food_name": food_name, "calories": calories})
+    results = recognize_image(file)
+    return jsonify({"message": "Recognised", "results": results})
 
 if __name__ == '__main__':
     app.run(debug=True,port=7766)
