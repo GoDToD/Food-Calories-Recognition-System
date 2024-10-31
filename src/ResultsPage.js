@@ -1,22 +1,28 @@
+// ResultsPage.js
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './ResultsPage.css';
 
 const ResultsPage = () => {
   const { state } = useLocation();
-  const { foodType, calories, previewImage } = state;
+  const { results, previewImage } = state;
   const navigate = useNavigate();
 
   const handleRetry = () => {
-    navigate('/'); 
+    navigate('/');
   };
 
   return (
     <div className="results-container">
       <h2>Food Recognition Results</h2>
       <img src={previewImage} alt="Uploaded Food" className="result-image" />
-      <h3>Food Item: {foodType}</h3>
-      <p>Estimated Calories: {calories} kcal/100g</p>
+      
+      {results.map((result, index) => (
+        <div key={index} className="result-item">
+          <h3>Food Item: {result.food_name}</h3>
+          <p>Estimated Calories: {result.calories} kcal/100g</p>
+        </div>
+      ))}
 
       <div className="button-container">
         <button className="retry-button" onClick={handleRetry}>
@@ -32,5 +38,4 @@ const ResultsPage = () => {
 };
 
 export default ResultsPage;
-
 
